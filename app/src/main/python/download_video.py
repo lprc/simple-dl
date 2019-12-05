@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 #from java import *
 import os
-import youtubedl as youtube_dl
+import youtube_dl
 
 def download_youtube (url, path):
 	#print(os.environ["HOME"])
