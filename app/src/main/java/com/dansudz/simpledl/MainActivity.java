@@ -1,15 +1,6 @@
 package com.dansudz.simpledl;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -26,41 +17,35 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
-import android.os.storage.StorageManager;
-import android.provider.DocumentsContract;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
+
+import com.chaquo.python.Kwarg;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
-import java.io.Console;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.nio.charset.Charset;
-
-import static android.provider.ContactsContract.CommonDataKinds.Website.URL;
-import static java.lang.System.in;
-import static java.security.AccessController.getContext;
+import java.util.HashMap;
+import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OptionsDialogFragment.OptionsDialogListener {
     public boolean NOTIFICATIONS_ARE_SENDING = true;
     public int apk_download_progress = 0;
     public boolean IS_APK_DOWNLOADING = false;
@@ -77,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     private int STORAGE_PERMISSION_CODE = 1;
     protected Python py;
     public AsyncTask task;
+    private HashMap<String, String> options = new HashMap<>();
+    private String optionsCli = "";
 
 
     @Override
@@ -343,7 +330,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button options_button = findViewById(R.id.options_button);
+        options_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // create Options dialog and supply current chosen options
+                // Results are processed in onDialogPositiveClick and onDialogNegativeClick
+                OptionsDialogFragment dialog = new OptionsDialogFragment();
 
+                Bundle opts = new Bundle();
+                for (Map.Entry<String, String> entry : options.entrySet()) {
+                    opts.putString(entry.getKey(), entry.getValue());
+                }
+                dialog.setArguments(opts);
+
+                dialog.show(getSupportFragmentManager(), "optionsdialog");
+            }
+        });
     }
 
     private void requestStoragePermission() {
@@ -471,6 +474,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Is called when options-dialog is dismissed with click on OK
+     * @param dialog the dialog instance
+     */
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        this.options = ((OptionsDialogFragment)dialog).getOptions();
+        this.optionsCli = ((OptionsDialogFragment)dialog).getOptionsAsCliString();
+    }
+
+    /**
+     * Is called when options-dialog is dismissed with click on Cancel
+     * @param dialog the dialog instance
+     */
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+
+    }
+
     public class Python_Downloader extends AsyncTask<Void, Void, Bitmap> {
 
         @Override
@@ -490,7 +512,14 @@ public class MainActivity extends AppCompatActivity {
             wakeLock.acquire();
 
             IS_DOWNLOADER_RUNNING = 1; // downloader about to start, push download status
-            download_prog.callAttr("download_youtube", user_input, DOWNLOAD_LOCATION); //call youtube-dl python module
+
+            // create python dict from options HashMap manually since apparently
+            // chaquopy doesn't do it automatically when providing as argument
+            PyObject opts = py.getBuiltins().callAttr("dict");
+            for (Map.Entry<String, String> entry : options.entrySet()) {
+                opts.callAttr("update", new Kwarg(entry.getKey(), entry.getValue()));
+            }
+            download_prog.callAttr("download_youtube", user_input, DOWNLOAD_LOCATION, opts); //call youtube-dl python module
             wakeLock.release();
             //realease wakelock after download has completed or has thrown an error
 
