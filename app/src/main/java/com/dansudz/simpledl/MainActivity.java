@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
     public AsyncTask task;
     private HashMap<String, String> options = new HashMap<>();
     private String optionsCli = "";
+    private int PROGRESS_NOTIFICATION = 1;
 
 
     @Override
@@ -428,6 +429,9 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
         }
     }
 
+    /**
+     * Creates a notification channel
+     */
     private void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel1 = new NotificationChannel(
@@ -443,6 +447,10 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
         }
     }
 
+    /**
+     * Updates the notification that shows the download progress
+     * @param notificationstring content of the notification
+     */
     public void sendonChannel(String notificationstring) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setOnlyAlertOnce(true)
@@ -451,15 +459,9 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
                 .setContentText(notificationstring)
                 .setOngoing(true); // Again, THIS is the important line
 
-
-
-
-        // .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
         NotificationManager nomanager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent appActivityIntent = new Intent(this, MainActivity.class
-        );
+        Intent appActivityIntent = new Intent(this, MainActivity.class);
 
         PendingIntent contentAppActivityIntent =
                 PendingIntent.getActivity(
@@ -470,8 +472,22 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
 
         notification.setContentIntent(contentAppActivityIntent);
 
-        nomanager.notify(1, notification.build());
+        nomanager.notify(PROGRESS_NOTIFICATION, notification.build());
+    }
 
+    /**
+     * Cancels the current progress notification and sends a dismissable notification
+     * that the download is finished
+     */
+    public void notifyFinished() {
+        NotificationManager nomanager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
+                .setOnlyAlertOnce(true)
+                .setSmallIcon(R.drawable.ic_stat_download_notification)
+                .setContentTitle("Download finished");
+
+        nomanager.notify(PROGRESS_NOTIFICATION, notification.build());
     }
 
     /**
@@ -526,6 +542,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
             //wait for ui update to catch up
             SystemClock.sleep(600);
 
+            notifyFinished();
             IS_DOWNLOADER_RUNNING = 0;
             return null;
         }
@@ -560,6 +577,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
 
             //wait for ui update to catch up
             SystemClock.sleep(600);
+            notifyFinished();
             IS_DOWNLOADER_RUNNING = 0;
             return null;
         }
