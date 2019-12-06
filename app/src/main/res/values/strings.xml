@@ -6,4 +6,5 @@
     <string name="playlistEnd">playlistend</string>
     <string name="playlistItems">playlist_items</string>
     <string name="outputTemplate">outtmpl</string>
+    <string name="notificationTitle">Download in Progress</string>
 </resources>

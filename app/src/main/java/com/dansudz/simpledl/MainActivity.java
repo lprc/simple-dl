@@ -17,6 +17,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.text.SpannableString;
+import android.text.SpannedString;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Gravity;
 import android.view.View;
@@ -453,13 +455,18 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
     /**
      * Updates the notification that shows the download progress
      * @param notificationstring content of the notification
+     * @param progress current progress in percent
      */
     public void sendonChannel(String notificationstring, int progress) {
+        String title = getResources().getString(R.string.notificationTitle);
+        SpannableString content = new SpannableString(notificationstring);
+
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(R.drawable.ic_stat_download_notification)
-                .setContentTitle("Download in Progress")
-                .setContentText(notificationstring)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(content).setBigContentTitle(title))
                 .setProgress(100, progress, false)
                 .setOngoing(true); // Again, THIS is the important line
 
