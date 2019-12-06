@@ -157,6 +157,9 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
             @Override
             public void run() {
 
+                py = Python.getInstance();
+                PyObject download_prog = py.getModule("download_video");
+
                 final TextView console_text_window = (TextView) findViewById(R.id.actualllog);
                 console_text_window.setMovementMethod(new ScrollingMovementMethod());
 
@@ -180,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
                             if (LAST_LINE_2 != "dskaldklkty4wjk234210-" && LAST_LINE != "2;31l;ldsa--5k32k;ldsa") {
 
                                 console_text_window.append(LAST_LINE_2);
-                                sendonChannel(LAST_LINE_2);
+                                sendonChannel(LAST_LINE_2, (int)download_prog.get("progress").toFloat());
 
 
                                 if (LAST_LINE_2.contains("\n")) {
@@ -451,12 +454,13 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
      * Updates the notification that shows the download progress
      * @param notificationstring content of the notification
      */
-    public void sendonChannel(String notificationstring) {
+    public void sendonChannel(String notificationstring, int progress) {
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(R.drawable.ic_stat_download_notification)
                 .setContentTitle("Download in Progress")
                 .setContentText(notificationstring)
+                .setProgress(100, progress, false)
                 .setOngoing(true); // Again, THIS is the important line
 
         NotificationManager nomanager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -485,7 +489,8 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
         NotificationCompat.Builder notification = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setOnlyAlertOnce(true)
                 .setSmallIcon(R.drawable.ic_stat_download_notification)
-                .setContentTitle("Download finished");
+                .setContentTitle("Download finished")
+                .setProgress(0,0,false);
 
         nomanager.notify(PROGRESS_NOTIFICATION, notification.build());
     }
