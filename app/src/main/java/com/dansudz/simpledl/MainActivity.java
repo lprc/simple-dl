@@ -103,6 +103,10 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
         textViewToChange.setText(
                 "Full error log can be viewed in the downloads folder");
 
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestStoragePermission();
+        }
+
         /*
         final Handler download_latest_release = new Handler(); //updates the console window
         download_latest_release.post(new Runnable() {
@@ -311,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
                 if (ContextCompat.checkSelfPermission(MainActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-
+                    Toast.makeText(MainActivity.this, "Starting Download...", Toast.LENGTH_SHORT).show();
                     task = new Python_Downloader().execute();
 
                 } else {
@@ -319,19 +323,6 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
                             "You need write permission for this action", Toast.LENGTH_LONG);
                     storage_toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
                     storage_toast.show();
-                }
-            }
-        });
-
-        Button storage_request = findViewById(R.id.permission_button);
-        storage_request.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(MainActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(MainActivity.this, "Permission already granted", Toast.LENGTH_SHORT).show();
-                } else {
-                    requestStoragePermission();
                 }
             }
         });
