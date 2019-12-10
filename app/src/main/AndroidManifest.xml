@@ -23,7 +23,6 @@
             android:name=".MainActivity"
             android:launchMode="singleInstance"
             android:configChanges = "orientation"
-            android:screenOrientation = "portrait"
             >
 
             <intent-filter>

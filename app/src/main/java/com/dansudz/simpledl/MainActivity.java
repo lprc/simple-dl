@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         //final ProgressBar apkdownload_bar = (ProgressBar) findViewById(R.id.apk_download);
 
