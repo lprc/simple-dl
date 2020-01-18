@@ -11,7 +11,7 @@ android:
     - build-tools-29.0.2
 
     # The SDK version used to compile your project
-    - $ANDROID_COMPILE_TARGET
+    - $ANDROID_TARGET
 
     # Additional components
     #- extra-google-google_play_services
@@ -22,14 +22,14 @@ android:
     # if you need to run emulator(s) during your tests
     #- sys-img-x86-android-29
     #- sys-img-armeabi-v7a-addon-google_apis-google-$ANDROID_TARGET
-    - sys-img-armeabi-v7a-android-ANDROID_EMU_TARGET
+    - sys-img-armeabi-v7a-android-$ANDROID_TARGET
 
 env:
   matrix:
     #- ANDROID_TARGET=android-17 ANDROID_ABI=google_apis/armeabi-v7a
-    - ANDROID_EMU_TARGET=android-17 ANDROID_ABI=armeabi-v7a ANDROID_COMPILE_TARGET=android-29
+    - ANDROID_TARGET=android-29 ANDROID_ABI=armeabi-v7a
 before_script:
-  - echo no | android create avd --force -n test -t ANDROID_EMU_TARGET --abi $ANDROID_ABI
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
