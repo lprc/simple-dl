@@ -68,6 +68,10 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
     private String optionsCli = "";
     private int PROGRESS_NOTIFICATION = 1;
 
+    public HashMap<String, Object> getOptions() {
+        return options;
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
+        PythonDownloader.updateActivity(this);
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN); //makes keyboard not mess up UI
 
@@ -316,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
                         Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     Toast.makeText(MainActivity.this, "Starting Download...", Toast.LENGTH_SHORT).show();
-                    task = new Python_Downloader().execute();
+                    task = new PythonDownloader().execute(((EditText) findViewById(R.id.user_url_input)).getText().toString());
 
                 } else {
                     Toast storage_toast = Toast.makeText(getApplicationContext(),
@@ -510,45 +514,6 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
     @Override
     public void onDialogNegativeClick(DialogFragment dialog) {
 
-    }
-
-    public class Python_Downloader extends AsyncTask<Void, Void, Bitmap> {
-
-        @Override
-        protected void onPreExecute() {
-            user_input = ((EditText) findViewById(R.id.user_url_input)).getText().toString();
-        }
-
-        protected Bitmap doInBackground(Void... params) {
-
-            py = Python.getInstance();
-            PyObject download_prog = py.getModule("download_video");
-
-            //acquire wakelock for download
-            PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-            PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    "MyApp::MyWakelockTag");
-            wakeLock.acquire();
-
-            IS_DOWNLOADER_RUNNING = 1; // downloader about to start, push download status
-
-            // create python dict from options HashMap manually since apparently
-            // chaquopy doesn't do it automatically when providing as argument
-            PyObject opts = py.getBuiltins().callAttr("dict");
-            for (Map.Entry<String, Object> entry : options.entrySet()) {
-                opts.callAttr("update", new Kwarg(entry.getKey(), entry.getValue()));
-            }
-            download_prog.callAttr("download_youtube", user_input, DOWNLOAD_LOCATION, opts); //call youtube-dl python module
-            wakeLock.release();
-            //realease wakelock after download has completed or has thrown an error
-
-            //wait for ui update to catch up
-            SystemClock.sleep(600);
-
-            notifyFinished();
-            IS_DOWNLOADER_RUNNING = 0;
-            return null;
-        }
     }
 
     public class Custom_Python_downloader extends AsyncTask<Void, Void, Bitmap> {
