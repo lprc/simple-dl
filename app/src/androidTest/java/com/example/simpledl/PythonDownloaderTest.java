@@ -20,13 +20,11 @@ import java.util.Map;
 @RunWith(AndroidJUnit4ClassRunner.class)
 @LargeTest
 public class PythonDownloaderTest {
-    private static final String stringToBeTyped = "Espresso";
-
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void changeText_sameActivity() {
+    public void downloadVideo_mainActivity() {
         Map<String, Object> options = new HashMap<>();
         options.put("outtmpl", "%(title)s.%(ext)s");
 
