@@ -25,8 +25,7 @@ android:
 
 env:
   matrix:
-    - ANDROID_TARGET=android-29
-    - ANDROID_ABI=google_apis/armeabi-v7a
+    - ANDROID_TARGET=android-29 ANDROID_ABI=google_apis/armeabi-v7a
 before_script:
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
