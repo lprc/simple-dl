@@ -12,7 +12,7 @@ android:
     - build-tools-29.0.2
 
     # The SDK version used to compile your project
-    - android-29
+    - $ANDROID_TARGET
 
     # Additional components
     #- extra-google-google_play_services
@@ -21,19 +21,19 @@ android:
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-x86-android-$ANDROID_TARGET
+    #- sys-img-x86-android-29
     #- sys-img-armeabi-v7a-addon-google_apis-google-$ANDROID_TARGET
     - sys-img-armeabi-v7a-android-$ANDROID_TARGET
 
 before_install:
-  - yes | sdkmanager "platforms;android-27"
-  - yes | sdkmanager "platforms;android-28"
+  - yes | sdkmanager "platforms;android-29"
 
 env:
   matrix:
     #- ANDROID_TARGET=android-17 ANDROID_ABI=google_apis/armeabi-v7a
-    - ANDROID_TARGET=android-22 ANDROID_ABI=sys-img-x86
+    - ANDROID_TARGET=android-29 ANDROID_ABI=armeabi-v7a
 before_script:
+  - android list targets
   - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
   - android-wait-for-emulator
