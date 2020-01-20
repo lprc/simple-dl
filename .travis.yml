@@ -8,6 +8,9 @@ android:
 before_install:
   - chmod +x gradlew
 
+before_script:
+  - touch local.properties
+
 env:
   global:
     - ADB_INSTALL_TIMEOUT=8
