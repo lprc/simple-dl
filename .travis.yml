@@ -8,6 +8,13 @@ android:
 before_install:
   - chmod +x gradlew
 
+addons:
+  apt:
+    sources:
+      - deadsnakes # source required so it finds the package definition below
+    packages:
+      - python3.6
+
 before_script:
   - touch local.properties
 
@@ -26,6 +33,8 @@ env:
     - API=24
 # Emulator Management: Create, Start and Wait
 install:
+  - p="$(which python)" # find python path
+  - sed -i 's/buildPython.*/buildPython \"'$p'\"/' app/build.gradle # insert python interpreter path in gradle build file
   - echo 'count=0' > /home/travis/.android/repositories.cfg # Avoid harmless sdkmanager warning
   - echo y | sdkmanager "platform-tools" #>/dev/null
   - echo y | sdkmanager "tools" #>/dev/null # A second time per Travis docs, gets latest versions
