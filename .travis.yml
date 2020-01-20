@@ -33,7 +33,7 @@ env:
     - API=24
 # Emulator Management: Create, Start and Wait
 install:
-  - p="$(which python | sed 's/\//\\\//g')" # find python path and replace all / with \/
+  - p="$(which python3 | sed 's/\//\\\//g')" # find python path and replace all / with \/
   - sed -i "s/buildPython.*/buildPython \"$p\"/" app/build.gradle # insert python interpreter path in gradle build file
   - echo 'count=0' > /home/travis/.android/repositories.cfg # Avoid harmless sdkmanager warning
   - echo y | sdkmanager "platform-tools" #>/dev/null
