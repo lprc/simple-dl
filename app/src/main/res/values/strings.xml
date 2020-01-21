@@ -7,4 +7,14 @@
     <string name="playlistItems">playlist_items</string>
     <string name="outputTemplate">outtmpl</string>
     <string name="notificationTitle">Download in Progress</string>
+    <string name="resolution">Resolution</string>
+    <string-array name="resolutionValues">
+        <item>default</item>
+        <item>144p</item>
+        <item>240p</item>
+        <item>360p</item>
+        <item>480p</item>
+        <item>720p</item>
+        <item>1080p</item>
+    </string-array>
 </resources>

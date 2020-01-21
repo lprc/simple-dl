@@ -31,6 +31,8 @@ public class PythonDownloader extends AsyncTask<String, Void, Void> {
         Python py = Python.getInstance();
         PyObject download_prog = py.getModule("download_video");
 
+        // create python dict from options HashMap manually since apparently
+        // chaquopy doesn't do it automatically when providing as argument
         PyObject opts = py.getBuiltins().callAttr("dict");
         for (Map.Entry<String, Object> entry : options.entrySet()) {
             opts.callAttr("update", new Kwarg(entry.getKey(), entry.getValue()));
@@ -53,11 +55,10 @@ public class PythonDownloader extends AsyncTask<String, Void, Void> {
 
         mActivityRef.get().IS_DOWNLOADER_RUNNING = 1; // downloader about to start, push download status
 
-        // create python dict from options HashMap manually since apparently
-        // chaquopy doesn't do it automatically when providing as argument
         startDownload(url, mActivityRef.get().DOWNLOAD_LOCATION, mActivityRef.get().getOptions());
+
+        // release wakelock after download has completed or has thrown an error
         wakeLock.release();
-        //realease wakelock after download has completed or has thrown an error
 
         //wait for ui update to catch up
         SystemClock.sleep(600);

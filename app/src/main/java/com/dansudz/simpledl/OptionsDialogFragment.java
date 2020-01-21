@@ -7,9 +7,11 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import androidx.fragment.app.DialogFragment;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class OptionsDialogFragment extends DialogFragment {
@@ -17,6 +19,7 @@ public class OptionsDialogFragment extends DialogFragment {
     private EditText playlistEnd;
     private EditText playlistItem;
     private EditText outputTemplate;
+    private Spinner resolution;
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -80,11 +83,22 @@ public class OptionsDialogFragment extends DialogFragment {
         playlistEnd = getDialog().findViewById(R.id.optPlaylistEnd);
         playlistItem = getDialog().findViewById(R.id.optPlaylistItem);
         outputTemplate = getDialog().findViewById(R.id.optOutputTemplate);
+        resolution = getDialog().findViewById(R.id.optResolution);
 
+        // set values to previously selected values (if any)
         playlistStart.setText(getArguments().getString(getResources().getString(R.string.playlistStart), ""));
         playlistEnd.setText(getArguments().getString(getResources().getString(R.string.playlistEnd), ""));
         playlistItem.setText(getArguments().getString(getResources().getString(R.string.playlistItems), ""));
         outputTemplate.setText(getArguments().getString(getResources().getString(R.string.outputTemplate), "%(title)s.%(ext)s"));
+
+        int pos = Arrays.asList(getResources().getStringArray(R.array.resolutionValues)).indexOf(
+                getArguments().getString("format", "default")
+                        .replace("best[height=", "")
+                        .replace("]", "") + "p"
+        );
+        if(pos != -1) {
+            resolution.setSelection(pos);
+        }
     }
 
     /**
@@ -108,6 +122,12 @@ public class OptionsDialogFragment extends DialogFragment {
 
         if(!outputTemplate.getText().toString().equals("")) {
             options.put(getResources().getString(R.string.outputTemplate), outputTemplate.getText().toString());
+        }
+
+        String resChoice = resolution.getSelectedItem().toString();
+        if(!resChoice.equals("default")) {
+            String format = "best[height=" + resChoice.replace("p", "") + "]";
+            options.put("format", format);
         }
 
         return options;
