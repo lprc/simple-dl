@@ -1,20 +1,10 @@
-# Simple-dl
-Mobile app development (android) for a simple user interface to use the popular youtube-dl tool for downloading videos on the go. Made using android studio with Chaquopy 6.2 (python support). 
+# Simple-dl [![Build Status](https://travis-ci.com/lprc/simple-dl.svg?branch=master)](https://travis-ci.com/lprc/simple-dl)
+This is an android wrapper for the popular youtube-dl tool with a simple ui. Just paste in an url and click on 'download'!
+<b>Note:</b> Because this is just a fork it's is not the version you see in the play store.
 
-## Try it out 
-Download the current compiled apk from the releases tab. Open an issue if something dosn't work. 
+It's build using chaquopy: https://chaquo.com/chaquopy/
 
-## Built using chaquopy
-Chaquopy is a plugin for android studio that allows you to implement python code into your project without changing anything. 
-
-## Uses Youtube-dl 
-Youtube-dl is an open source video downloader written in pytuon that supports over 1000 unique websites and offers full customisation of download parameters.
-
-## How to build an apk
-Clone the repository and create a local.properties file with the location of your android studio install. No other customizations necessary. 
-
-## Beta build
-The app may behave in unintented ways as it is in beta and currently is very barebones. Expect more features and stability updates in the future.
+If youtube-dl on the master branch is outdated, check out the nightly branch where youtube-dl gets updated automatically daily (apk is not yet generated automatically).
 
 ## Screenshots
 <p float="left">
