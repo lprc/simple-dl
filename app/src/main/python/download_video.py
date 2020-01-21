@@ -6,19 +6,17 @@ import json
 
 progress = 0
 
-def download_youtube (url, path, opts):
-	#print(os.environ["HOME"])
-	os.chdir(os.environ["HOME"])
-	os.chdir('/storage/emulated/0/Download')
-
+def download_youtube (url, path='/storage/emulated/0/Download', opts={}):
 	global progress
 	progress = 0 # reset progress
+
+	os.chdir(path)
 
 	import sys
 	sys.stdout = open('logger.txt', 'w')
 	sys.stderr = open('logger.txt', 'w')
 
-	os.chdir(path)
+	print("Downloading into ", path)
 
 	# print supplied options to log file
 	print('used options: ' + json.dumps(opts))

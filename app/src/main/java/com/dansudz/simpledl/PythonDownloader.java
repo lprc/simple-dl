@@ -27,7 +27,7 @@ public class PythonDownloader extends AsyncTask<String, Void, Void> {
 
     private PowerManager.WakeLock wakeLock;
 
-    public static void startDownload(String url, Map<String, Object> options) {
+    public static void startDownload(String url, String downloadLocation, Map<String, Object> options) {
         Python py = Python.getInstance();
         PyObject download_prog = py.getModule("download_video");
 
@@ -35,7 +35,7 @@ public class PythonDownloader extends AsyncTask<String, Void, Void> {
         for (Map.Entry<String, Object> entry : options.entrySet()) {
             opts.callAttr("update", new Kwarg(entry.getKey(), entry.getValue()));
         }
-        download_prog.callAttr("download_youtube", url, mActivityRef.get().DOWNLOAD_LOCATION, opts); //call youtube-dl python module
+        download_prog.callAttr("download_youtube", url, downloadLocation, opts); //call youtube-dl python module
     }
 
     @Override
@@ -55,7 +55,7 @@ public class PythonDownloader extends AsyncTask<String, Void, Void> {
 
         // create python dict from options HashMap manually since apparently
         // chaquopy doesn't do it automatically when providing as argument
-        startDownload(url, mActivityRef.get().getOptions());
+        startDownload(url, mActivityRef.get().DOWNLOAD_LOCATION, mActivityRef.get().getOptions());
         wakeLock.release();
         //realease wakelock after download has completed or has thrown an error
 
