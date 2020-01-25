@@ -49,3 +49,23 @@ install:
   - emulator -verbose -avd test -no-accel -no-snapshot -no-window $AUDIO -camera-back none -camera-front none -selinux permissive -qemu -m 1536 &
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
+
+before_deploy:
+  # Set up git user name and tag this commit
+  - git config --local user.name "lprc"
+  - git config --local user.email "lprc-github@t-online.de"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$(date +'%Y.%m.%d_%H.%M')}
+  - git tag $TRAVIS_TAG
+
+deploy:
+  provider: releases
+  api_key:
+    secure: Icp1G6lhAMYJvqyJRWKcqVBNRIa6A7PaLhh5LPUqkHjm6spsLKHrR9ZEFx/47JH+FuFGVQbZ72wH0snMciOUsnuxIwDU5UA9oL/e2nTH54qBzy49vODvlp4JCJmnbSXapNn9AuVa3tSvFXg5FqRyLRfR1Aa7iXOV2P+F5tgDvDTJs5bqJchr+G6q82wflsrNh2ae4clMTwgopCDpkKXCECGrhyoX8bUEQPSIbYaRv+L/RUaZ8nRUUwE/vXQ5Z5cXbZMY7nOnGpVnmUj9QLz0f8zbMw2D7hFgbKCh5IXI2ZPrUqfznzVRR6ed8hc/zqEkxj6wHa4a55Tb23Uapi+15xZdQfR5NksD6KztilOtJBi6AayPvsOv6Jgb3arRPpxn6gJ63wAG0Y3m1V6WN86mWj3KIsfRG4ZEjNj9aKNhiJnhHFz/Hl0hs9DcHKxuoqN+wDJrjF+cswWbvMe5xyvwfT0V8MkyMjuEnDOD2182V7GR5ATOpfJPDWusyUyB9v+Fk8YTtaA6LwYFgOVTqCj7YQQwnX7XSTgw2BHN9P3zhMDFs5ka/UXv8/z1kdVQPLfXRDSvQqyRqQkShYvajwnDzFDxSXhelyS3XDQ76iZOl9ZfvB5MgaqA594DUIkkpW0qpZvP7kDE5c9r6XNkbXXOQ10pL5JwMePiu6o4EtnSpH8=
+  file: app/build/outputs/apk/debug/app-debug.apk
+  skip_cleanup: true
+  on:
+    repo: lprc/simple-dl
+    branch: nightly
+
+notifications:
+  email: false
