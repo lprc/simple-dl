@@ -55,7 +55,8 @@ before_deploy:
   # Set up git user name and tag this commit
   - git config --local user.name "lprc"
   - git config --local user.email "lprc-github@t-online.de"
-  - export TRAVIS_TAG=${TRAVIS_TAG:-$(git rev-parse --abbrev-ref HEAD)_$(date +'%Y.%m.%d_%H.%M')}
+  - br="$(git rev-parse --abbrev-ref HEAD)"
+  - export TRAVIS_TAG=${TRAVIS_TAG:-$br_$(date +'%Y.%m.%d_%H.%M')}
   - git tag $TRAVIS_TAG
 
 deploy:
