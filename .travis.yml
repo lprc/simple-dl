@@ -16,7 +16,7 @@ addons:
       - python3.6
 
 before_script:
-  - touch local.properties
+  - cat > local.properties <<< "chaquopy.license=${CHAQUOPY_LICENSE}"
 
 env:
   global:
@@ -27,6 +27,7 @@ env:
     - ANDROID_HOME=/usr/local/android-sdk
     - TOOLS=${ANDROID_HOME}/tools
     - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
+    - secure: "o9ZDG+QJAuFfOmwVstMeejMQNcSA6h0yAuOxCglAjQkK6F7PJ+XCweyWLGU2baXCE1dDLD0rUGEo72iRaAQqkD0lJqO+OuepC/ZE/W9Je2mnAETEOC5tfpWLqrUTLmqoRNUGOsleuwgVVR7TJM8UdUzLuA+3Pp9a/VXIvLCR/05PQUPhpIFL5ihJLPUojBMM57jp/9n08CWfqygVo6MGhgtI/DLYaA/BX6JQfaRy71fQTikPXqt2sj6HsthZ8B5YLQkXbfE8pr891KDSPjitEc6u0jPBMkaZxRq9tOprrlZGrSiQBJyPgo7LXkfRBwJLOv5eP8Ph63FGX5i9y8b42xuQP/wRyojB5GXqt4xZUpFoCMa0ZMiMRhinrcumuerZJ/Xks97MlC7rwYKgWNLydmgdS4qt5wKkMghVvwW20RErYLVsc+WIL8/C2ijz0gtIc2EcOohpqeJ3L1elOvd7ZiOO/0a20rvl5Cz46HdRQo1pKDVCT2GRRGDwzIMHxmfZBRduhAiAEA9fAEWXT+M6/EN858xdLyWZoMMRQ7GxwBYNLB14FxhdhpEuquDUjJxaTYobFDdDg288reTW4gU2W1b8Gms/gYeJ/hD1acEqgMyu2pMcDjUy0BlNZmQtvZ4wckdV+fIhfOQehKNtEMmwYIVjYKvdAjHcayqc4ZDZo/E="
   matrix:
     #- ANDROID_TARGET=android-17 ANDROID_ABI=google_apis/armeabi-v7a
     #- ANDROID_TARGET=android-29 ANDROID_ABI=armeabi-v7a
