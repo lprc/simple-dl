@@ -2,7 +2,7 @@
 
 ## Why?
 
-Because youtube-dl is a great tool but yet not natively supported on Android. There are several GUI options but none of them seem to be kept up to date. See the nightly branch where the included youtube-dl version is always the newest one.
+Because youtube-dl is a great tool but yet not natively supported on Android. There are several GUI options but none of them seem to be kept up to date. See the nightly branch where the included youtube-dl version is always the newest one. An unsigned apk is released every time the nightly branch has an update.
 
 ## What?
 
@@ -11,7 +11,7 @@ This is an android wrapper for the popular youtube-dl tool with a simple ui. Jus
 
 It's build using chaquopy: https://chaquo.com/chaquopy/
 
-If youtube-dl on the master branch is outdated, check out the nightly branch where youtube-dl gets updated automatically daily (apk is not yet generated automatically).
+If youtube-dl on the master branch is outdated, check out the nightly branch where youtube-dl gets updated automatically daily.
 
 ## Screenshots
 <p float="left">
