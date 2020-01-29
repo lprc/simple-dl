@@ -1,4 +1,11 @@
 # Simple-dl [![Build Status](https://travis-ci.com/lprc/simple-dl.svg?branch=master)](https://travis-ci.com/lprc/simple-dl)
+
+## Why?
+
+Because youtube-dl is a great tool but yet not natively supported on Android. There are several GUI options but none of them seem to be kept up to date. See the nightly branch where the included youtube-dl version is always the newest one.
+
+## What?
+
 This is an android wrapper for the popular youtube-dl tool with a simple ui. Just paste in an url and click on 'download'!
 <b>Note:</b> Because this is just a fork it's is not the version you see in the play store.
 
