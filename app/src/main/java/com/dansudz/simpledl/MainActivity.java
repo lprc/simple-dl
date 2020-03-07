@@ -4,16 +4,20 @@ import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInstaller;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.os.SystemClock;
@@ -34,6 +38,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 
 import com.chaquo.python.Kwarg;
@@ -42,7 +47,13 @@ import com.chaquo.python.Python;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
     private HashMap<String, Object> options = new HashMap<>();
     private String optionsCli = "";
     private int PROGRESS_NOTIFICATION = 1;
+    private String GITHUB_URL = "https://github.com/lprc/simple-dl/releases/latest/download/app-debug.apk";
+    private String UPDATE_DOWNLOAD_LOCATION = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.pathSeparator + "simple_dl_latest.apk";
+    private ProgressDialog mProgressDialog;
 
     public HashMap<String, Object> getOptions() {
         return options;
@@ -348,6 +362,29 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
                 dialog.show(getSupportFragmentManager(), "optionsdialog");
             }
         });
+
+        Button updateButton = findViewById(R.id.btnUpdate);
+        updateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // delete old apk if exists
+                File f = new File(UPDATE_DOWNLOAD_LOCATION);
+                if(f.exists()) {
+                    f.delete();
+                }
+
+                // instantiate it within the onCreate method
+                mProgressDialog = new ProgressDialog(MainActivity.this);
+                mProgressDialog.setMessage("Downloading update...");
+                mProgressDialog.setIndeterminate(true);
+                mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                mProgressDialog.setCancelable(true);
+
+                // download latest release
+                final DownloadTask downloadTask = new DownloadTask(MainActivity.this);
+                downloadTask.execute(GITHUB_URL);
+            }
+        });
     }
 
     private void requestStoragePermission() {
@@ -576,6 +613,135 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
             //realease wakelock after download has completed or has thrown an error
             IS_APK_DOWNLOADING = false;
             return null;
+        }
+    }
+
+    // usually, subclasses of AsyncTask are declared inside the activity class.
+// that way, you can easily modify the UI thread from here
+    private class DownloadTask extends AsyncTask<String, Integer, String> {
+
+        private Context context;
+        private PowerManager.WakeLock mWakeLock;
+
+        public DownloadTask(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected String doInBackground(String... sUrl) {
+            InputStream input = null;
+            OutputStream output = null;
+            HttpURLConnection connection = null;
+            try {
+                URL url = new URL(sUrl[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+                // expect HTTP 200 OK, so we don't mistakenly save error report
+                // instead of the file
+                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    return "Server returned HTTP " + connection.getResponseCode()
+                            + " " + connection.getResponseMessage();
+                }
+
+                // this will be useful to display download percentage
+                // might be -1: server did not report the length
+                int fileLength = connection.getContentLength();
+
+                // download the file
+                input = connection.getInputStream();
+                output = new FileOutputStream(UPDATE_DOWNLOAD_LOCATION);
+
+                byte data[] = new byte[4096];
+                long total = 0;
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    // allow canceling with back button
+                    if (isCancelled()) {
+                        input.close();
+                        return null;
+                    }
+                    total += count;
+                    // publishing the progress....
+                    if (fileLength > 0) // only if total length is known
+                        publishProgress((int) (total * 100 / fileLength));
+                    output.write(data, 0, count);
+                }
+            } catch (Exception e) {
+                return e.toString();
+            } finally {
+                try {
+                    if (output != null)
+                        output.close();
+                    if (input != null)
+                        input.close();
+                } catch (IOException ignored) {
+                }
+
+                if (connection != null)
+                    connection.disconnect();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // take CPU lock to prevent CPU from going off if the user
+            // presses the power button during download
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+                    getClass().getName());
+            mWakeLock.acquire();
+            mProgressDialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+            // if we get here, length is known, now set indeterminate to false
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.setMax(100);
+            mProgressDialog.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            mWakeLock.release();
+            mProgressDialog.dismiss();
+            if (result != null)
+                Toast.makeText(context,"Download error: "+result, Toast.LENGTH_LONG).show();
+            else {
+                // install update
+                /*if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    PackageInstaller packageInstaller = context.getPackageManager().getPackageInstaller();
+
+                    try {
+                        int sessionId = packageInstaller.createSession(new PackageInstaller
+                                .SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL));
+                        PackageInstaller.Session session = packageInstaller.openSession(sessionId);
+                        // fake intent
+                        IntentSender statusReceiver = null;
+                        Intent intent = new Intent(context, MainActivity.class);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
+                                1337111117, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                        session.commit(pendingIntent.getIntentSender());
+                        session.close();
+                    } catch (IOException e) {
+                        Toast.makeText(context,"error installing: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                } else {*/
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    File file = new File(UPDATE_DOWNLOAD_LOCATION);
+                    Uri apkURI = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", file);
+                    intent.setDataAndType(apkURI, "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION); // without this flag android returned a intent error!
+                    getApplicationContext().startActivity(intent);
+                    Toast.makeText(context,"Installing...", Toast.LENGTH_SHORT).show();
+                //}
+                //Toast.makeText(context,"File downloaded", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
