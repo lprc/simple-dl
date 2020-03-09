@@ -101,6 +101,25 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
         }
     }
 
+    /**
+     * paste url into text box if share was used from youtube app
+     */
+    private void getUrlFromIntent() {
+        String url = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+        Intent i = getIntent();
+
+        if(url != null) {
+            ((EditText) findViewById(R.id.user_url_input)).setText(url);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        getUrlFromIntent();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -111,6 +130,9 @@ public class MainActivity extends AppCompatActivity implements OptionsDialogFrag
         createNotificationChannels(); //Sets notification channel for pushing download progress
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ((EditText) findViewById(R.id.user_url_input)).requestFocus();
+
+        getUrlFromIntent();
 
         //this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
